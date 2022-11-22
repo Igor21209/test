@@ -1,1 +1,6 @@
-print('Hel3lo, %test%')
+from sys import argv
+
+
+path, param = argv
+
+print(f'Hello, {param}')
