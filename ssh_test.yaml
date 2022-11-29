@@ -1,0 +1,10 @@
+---
+sas:
+  - /home/igor/test_git/test/test1/file_1.sas
+  - /home/igor/test_git/test/test_dir
+  - /home/igor/test_git/test/test_dir/file1.sas
+  
+sql:
+  - /home/igor/test_git/test/test_dir/file1.sql
+  - /home/igor/test_git/test/test_dir/file2.sql
+
