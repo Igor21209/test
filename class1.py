@@ -1,4 +1,4 @@
 class Test:
  
-    def say(self):
-        print('Hello there!')
+    def say(self, name):
+        print(f'Hello {name}!')
