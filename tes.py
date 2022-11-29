@@ -1,5 +1,5 @@
 from class1 import Test
-import sys
+from sys import argv
 
 path, name = argv
 
