@@ -47,12 +47,14 @@ class Teamcity:
     def execute_files(self, data_dict):
         sql = data_dict.get('sql')
         sas = data_dict.get('sas')
-        for q in sql:
-            q = f'@{q}'
-            byte = bytes(q, 'UTF-8')
-            self.runSqlQuery(byte)
-        for s in sas:
-            self.ssh_copy(s, self.target_dir)
+        if sql:
+            for q in sql:
+                q = f'@{q}'
+                byte = bytes(q, 'UTF-8')
+                self.runSqlQuery(byte)
+        if sas:
+            for s in sas:
+                self.ssh_copy(s, self.target_dir)
 
     def ssh_copy(self, sourse, target):
         dirs = re.split('/', sourse)
