@@ -1,3 +1,3 @@
 whenever sqlerror exit sql.sqlcode
-select st1 from str;
+select * from a;
 exit;
