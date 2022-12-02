@@ -1,8 +1,8 @@
 ---
 sas:
-  - test1/file_1.sas
-  - test_dir
+  - test/test1/file_1.sas
+  - test/test_dir
   
 sql:
-  - test_dir/file1.sql
+  - test/test_dir/file1.sql
 
