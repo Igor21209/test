@@ -1,8 +1,7 @@
 ---
 sas:
-        #  - /home/igor/test_git/test/test1/file_1.sas
-        #  - /home/igor/test_git/test/test_dir
-        #  - /home/igor/test_git/test/test_dir/file1.sas
+  - test/test1/file_1.sas
+  - test/test_dir
   
 sql:
   - test/test_dir/file1.sql
