@@ -44,19 +44,17 @@ class Teamcity:
             data = yaml.load(f, Loader=SafeLoader)
             return data
 
-    def execute_files(self, data_pathes):
-        patches = data_pathes.get('patch')
-        for patch in patches:
-            sql = patch.get('sql')
-            sas = patch.get('sas')
-            if sql:
-                for q in sql:
-                    q = f'@{q}'
-                    byte = bytes(q, 'UTF-8')
-                    self.runSqlQuery(byte)
-            if sas:
-                for s in sas:
-                    self.ssh_copy(s, self.target_dir)
+    def execute_files(self, data_dict):
+        sql = data_dict.get('sql')
+        sas = data_dict.get('sas')
+        if sql:
+            for q in sql:
+                q = f'@{q}'
+                byte = bytes(q, 'UTF-8')
+                self.runSqlQuery(byte)
+        if sas:
+            for s in sas:
+                self.ssh_copy(s, self.target_dir)
 
     def ssh_copy(self, sourse, target):
         dirs = re.split('/', sourse)

@@ -1,0 +1,5 @@
+---
+patch:
+  - deploy1.yaml
+  - deploy2.yaml
+
