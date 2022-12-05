@@ -4,5 +4,5 @@ sas:
   - test_dir
   
 sql:
-  - /test_dir/file1.sql
+  - test_dir/file1.sql
 
