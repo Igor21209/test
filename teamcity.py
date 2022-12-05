@@ -20,7 +20,7 @@ class Teamcity:
 
     def runSqlQuery(self, sqlCommand):
         session = Popen([f'{self.path_to_sqlplus}',
-                         f'{self.schema}/{self.get_env_variable("echo $pass")}@//{self.oracle_host}:1521/{self.oracle_db}'], stdin=PIPE, stdout=PIPE,
+                         f'{self.schema}/oracle@//{self.oracle_host}:1521/{self.oracle_db}'], stdin=PIPE, stdout=PIPE,
                         stderr=PIPE)
         session.stdin.write(sqlCommand)
         if session.communicate():
