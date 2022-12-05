@@ -5,4 +5,5 @@ sas:
   
 sql:
   - test_dir/file1.sql
+  - test_dir/sql.sql
 
