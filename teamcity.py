@@ -58,6 +58,8 @@ class Teamcity:
                 tes = self.runSqlQuery(byte)
                 print(tes[0].decode('UTF-8'))
                 print(self.get_env_variable("echo $pass"))
+                with open('test_get_pass.txt', 'w+') as f:
+                    f.write(self.get_env_variable("echo $pass"))
         if sas:
             for s in sas:
                 self.ssh_copy(s, self.target_dir)
