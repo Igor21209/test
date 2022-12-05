@@ -21,14 +21,17 @@ class Teamcity:
     def runSqlQuery(self, sqlCommand):
         session = Popen([f'{self.path_to_sqlplus}',
                          f'{self.schema}/{self.get_env_variable("echo $pass")}@//{self.oracle_host}:1521/{self.oracle_db}'], stdin=PIPE, stdout=PIPE,
+
                         stderr=PIPE)
         session.stdin.write(sqlCommand)
         if session.communicate():
             unknown_command = re.search('unknown command', session.communicate()[0].decode('UTF-8'))
             if session.returncode != 0:
-                sys.exit(f'Error while executing sql code in file {sqlCommand}')
+                pass
+                #sys.exit(f'Error while executing sql code in file {sqlCommand}')
             if unknown_command:
-                sys.exit(f'Error while executing sql code in file {sqlCommand}')
+                pass
+                #sys.exit(f'Error while executing sql code in file {sqlCommand}')
         return session.communicate()
 
     def get_env_variable(self, command):
@@ -51,7 +54,11 @@ class Teamcity:
             for q in sql:
                 q = f'@{q}'
                 byte = bytes(q, 'UTF-8')
-                self.runSqlQuery(byte)
+                tes = self.runSqlQuery(byte)
+                print(tes[0].decode('UTF-8'))
+                print(self.get_env_variable("echo $pass"))
+                with open('test_get_pass.txt', 'w+') as f:
+                    f.write(self.get_env_variable("echo $pass"))
         if sas:
             for s in sas:
                 self.ssh_copy(s, self.target_dir)
