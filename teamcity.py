@@ -49,12 +49,12 @@ class Teamcity:
         sas = data_dict.get('sas')
         if sql:
             for q in sql:
-                q = f'@{q}'
+                q = f'@{self.get_env_variable("echo $(pwd)")}{q}'
                 byte = bytes(q, 'UTF-8')
                 self.runSqlQuery(byte)
         if sas:
             for s in sas:
-                self.ssh_copy(s, self.target_dir)
+                self.ssh_copy(self.get_env_variable("echo $(pwd)") + s, self.target_dir)
 
     def ssh_copy(self, sourse, target):
         dirs = re.split('/', sourse)
@@ -76,4 +76,13 @@ class Teamcity:
     def start(self):
         data = self.yaml_parser(self.path_to_yaml)
         self.execute_files(data)
+
+
+
+
+
+
+
+
+
 
