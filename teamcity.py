@@ -51,7 +51,7 @@ class Teamcity:
         sas = data_dict.get('sas')
         if sql:
             for q in sql:
-                q = f'@{self.get_env_variable("echo $(pwd)")}{q}'
+                q = f'@{q}'
                 byte = bytes(q, 'UTF-8')
                 self.runSqlQuery(byte)
         if sas:
