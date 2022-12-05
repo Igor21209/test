@@ -56,7 +56,7 @@ class Teamcity:
                 self.runSqlQuery(byte)
         if sas:
             for s in sas:
-                self.ssh_copy(self.get_env_variable(s, self.target_dir)
+                self.ssh_copy(s, self.target_dir)
 
     def ssh_copy(self, sourse, target):
         dirs = re.split('/', sourse)
