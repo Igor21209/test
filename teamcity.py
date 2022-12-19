@@ -80,39 +80,57 @@ class Teamcity:
         current_branch = self.run_shell_command('git branch --show-current').strip()
         return current_branch
 
+    def log_patch_db_success(self, patch):
+        add_to_install_patches = f"""whenever sqlerror exit sql.sqlcode
+MERGE INTO PATCH_STATUS USING DUAL ON (PATCH_NAME = '{patch}')
+WHEN NOT MATCHED THEN INSERT (PATCH_NAME, INSTALL_DATE, STATUS)
+VALUES('{patch}', current_timestamp, 'SUCCESS')
+WHEN MATCHED THEN UPDATE SET INSTALL_DATE=current_timestamp, STATUS='SUCCESS';
+exit;"""
+        with tempfile.NamedTemporaryFile('w+', encoding='UTF-8', suffix='.sql', dir='/tmp') as fp:
+           fp.write(add_to_install_patches)
+           fp.flush()
+           self.runSqlQuery(bytes(f"@{fp.name}", 'UTF-8'))
+
+
     def execute_files(self, patches):
         patches_1 = patches.get('patch')
         patches_for_install = self.get_patches_for_install(patches_1)
         if len(patches_for_install) == 0:
             sys.exit(f'Nothing to install')
         patches_for_install_order = self.check_patches(patches_1, patches_for_install)
-        list_of_commit_objects = self.git(patches_for_install)
-        check = self.check_incorrect_order(list_of_commit_objects, patches_for_install_order)
-        if not check:
-            for patch in list_of_commit_objects:
-                pars = f'Patches/{patch.branch}/deploy.yml'
-                data = self.yaml_parser(pars)
-                sql = data.get('sql')
-                sas = data.get('sas')
-                if sql:
-                    for q in sql:
-                        query = self.get_commit_version(q, patch.commit)
-                        self.runSqlQuery(query)
-                if sas:
-                    for s in sas:
-                        self.ssh_copy(s, self.target_dir)
-                add_to_install_patches = f"""whenever sqlerror exit sql.sqlcode
-MERGE INTO PATCH_STATUS USING DUAL ON (PATCH_NAME = '{patch.branch}')
-WHEN NOT MATCHED THEN INSERT (PATCH_NAME, INSTALL_DATE, STATUS)
-VALUES('{patch.branch}', current_timestamp, 'SUCCESS')
-WHEN MATCHED THEN UPDATE SET INSTALL_DATE=current_timestamp, STATUS='SUCCESS';
-exit;"""
-                with tempfile.NamedTemporaryFile('w+', encoding='UTF-8', suffix='.sql', dir='/tmp') as fp:
-                    fp.write(add_to_install_patches)
-                    fp.flush()
-                    self.runSqlQuery(bytes(f"@{fp.name}", 'UTF-8'))
+        if not (len(patches_for_install) == 1 and self.get_current_branch() == patches_for_install[0]):
+            list_of_commit_objects = self.git(patches_for_install)
+            check = self.check_incorrect_order(list_of_commit_objects, patches_for_install_order)
+            if not check:
+                for patch in list_of_commit_objects:
+                    pars = f'Patches/{patch.branch}/deploy.yml'
+                    data = self.yaml_parser(pars)
+                    sql = data.get('sql')
+                    sas = data.get('sas')
+                    if sql:
+                        for q in sql:
+                            query = self.get_commit_version(q, patch.commit)
+                            self.runSqlQuery(query)
+                    if sas:
+                        for s in sas:
+                            self.ssh_copy(s, self.target_dir)
+                    self.log_patch_db_success(patch.branch)
+            else:
+                sys.exit(f"Patches order does not match commits order")
         else:
-            sys.exit(f"Patches order does not match commits order")
+            patch = patches_for_install[0]
+            pars = f'Patches/{patch}/deploy.yml'
+            data = self.yaml_parser(pars)
+            sql = data.get('sql')
+            sas = data.get('sas')
+            if sql:
+                for q in sql:
+                    self.runSqlQuery(bytes(f"@{q}", 'UTF-8'))
+            if sas:
+                for s in sas:
+                    self.ssh_copy(s, self.target_dir)
+            self.log_patch_db_success(patch)
 
     def ssh_copy(self, sourse, target):
         dirs = re.split('/', sourse)
@@ -208,12 +226,3 @@ exit;"""
     def start(self):
         data = self.yaml_parser(self.path_to_yaml)
         self.execute_files(data)
-
-
-
-
-
-
-
-
-
