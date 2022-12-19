@@ -48,6 +48,11 @@ class Teamcity:
             data = yaml.load(f, Loader=SafeLoader)
             return data
 
+    '''
+    Метод предназначен для восстановления порядка установки патчей в соответствии с порядком, указанным в файле deploy_order.yml.
+    Он необходим, т.к. бд возвращает случайный порядок патчей для утановки.
+    set(pathes_for_install) - set(list_of_installed_pathes_from_db) не получится использовать, т.к. порядок в таком случае не сохраняется.
+    '''
     def check_patches(self, pathes_for_install, list_of_installed_pathes_from_db):
         index_scan = 0
         while index_scan < len(pathes_for_install):
@@ -57,6 +62,11 @@ class Teamcity:
                 index_scan += 1
         return pathes_for_install
 
+    '''
+    Метод необходим для проверки соответствия количества патчей, предполагаемых установке, и правильность порядка их следования.
+    Собранный список объектов класса Commit в методе git сверяется со списком патчей для устновки, собранным в соответствии с 
+    порядком, указанным в файле deploy_order.yml
+    '''
     def check_incorrect_order(self, commits_array, branch_array):
         patch_index = 0
         result_compare_order = False
@@ -172,6 +182,15 @@ exit;"""
         sql_command = sql_exec.communicate()[0]
         return sql_command
 
+    '''
+    Метод необходим для поиска версии sql скрипта из ветки для которой был выполнен merge в ветку release
+    1. Находим все merge в ветку release командой git rev-list --merges HEAD ^Jira_X
+    2. Через команду git show <хэш коммита> находим нужную версию коммита
+    Результатом работы метода является отсортированный по дате список объектов класса Commit, которые содержат в себе:
+    - нужный хэш коммита, по которому потом будут применяться sql скрипты (метод get_commit_version)
+    - дата этого уоммита
+    - название ветки с патчом
+    '''
     def git(self, patches):
         commit_list = []
         for patch_name in patches:
